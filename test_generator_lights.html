@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Promise实现红绿灯</title>
+</head>
+<body>
+	<div id="j-light" style="height: 100px;width:100px;border:1px solid black;"></div>
+	<script type="text/javascript">
+		var _light = document.getElementById("j-light");
+		function setColor(_item,_color){
+			_item.style.backgroundColor=_color;
+		}
+		function getPromise(time,callback,_item,_color){
+			var _promise = new Promise(function(resolve,reject) {
+				setTimeout(function() {
+					callback(_item,_color);
+					resolve();
+				},time);
+			});
+			return _promise;
+		}
+		function* gen(){
+			yield 'red';
+			yield 'yellow';
+			yield 'green';
+		}
+		
+		var _promise = new Promise(function(resolve,reject){resolve();});
+		var step = function(_promise) {
+			var it = gen();
+			_promise.then(function(){
+				return getPromise(3000,setColor,_light,it.next().value);
+			}).then(function(){
+				return getPromise(2000,setColor,_light,it.next().value);
+			}).then(function(){
+				return getPromise(3000,setColor,_light,it.next().value);
+			}).then(function(){
+				step(_promise);
+			});
+		};
+		step(_promise);
+		
+	</script>
+</body>
+</html>
